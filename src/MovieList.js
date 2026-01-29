@@ -1,12 +1,10 @@
-import { useState } from "react";
-import { tempMovieData } from "./Main";
-
-export function MovieList() {
-  const [movies, setMovies] = useState(tempMovieData);
-
+export function MovieList({ movies }) {
+  const uniqueMovies = movies
+    ? Array.from(new Map(movies.map((m) => [m.imdbID, m])).values())
+    : [];
   return (
     <ul className="list">
-      {movies?.map((movie) => (
+      {uniqueMovies.map((movie) => (
         <Movie movie={movie} key={movie.imdbID} />
       ))}
     </ul>
