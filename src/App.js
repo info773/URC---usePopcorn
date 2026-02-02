@@ -60,8 +60,8 @@ const KEY = "f84fc31d";
 
 export default function App() {
   const [query, setQuery] = useState("");
-  const [movies, setMovies] = useState(tempMovieData);
-  const [watched, setWatched] = useState(tempWatchedData);
+  const [movies, setMovies] = useState([]);
+  const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState(null);
@@ -74,6 +74,14 @@ export default function App() {
     setSelectedId(null);
   }
 
+  function handleAddWatched(movie) {
+    setWatched((watched) => [...watched, movie]);
+  }
+
+  function handleDeleteWatched(id) {
+    setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
+  }
+
   useEffect(
     function () {
       async function getMovie() {
@@ -81,7 +89,7 @@ export default function App() {
           setIsLoading(true);
           setError("");
           const res = await fetch(
-            `http://omdbapi.com/?apikey=${KEY}&s=${query}`,
+            `http://omdbapi.com/?apikey=${KEY}&s=${query}`
           );
 
           if (!res.ok) {
@@ -111,7 +119,7 @@ export default function App() {
 
       getMovie();
     },
-    [query],
+    [query]
   );
 
   return (
@@ -133,11 +141,16 @@ export default function App() {
             <MovieDetails
               selectedId={selectedId}
               onCloseMovie={handleCloseMovie}
+              onAddWatched={handleAddWatched}
+              watched={watched}
             />
           ) : (
             <>
               <WatchedSummary watched={watched} />
-              <WatchedMoviesList watched={watched} />
+              <WatchedMoviesList
+                watched={watched}
+                onDeleteWatched={handleDeleteWatched}
+              />
             </>
           )}
         </Box>

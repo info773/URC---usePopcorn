@@ -4,9 +4,20 @@ import { Loader } from "./Loader";
 
 const KEY = "f84fc31d";
 
-export function MovieDetails({ selectedId, onCloseMovie }) {
+export function MovieDetails({
+  selectedId,
+  onCloseMovie,
+  onAddWatched,
+  watched,
+}) {
   const [movie, setMovie] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [userRating, setUserRating] = useState(0);
+
+  const isWatched = watched.some((movie) => movie.imdbID === selectedId);
+  const watchedUserRating = watched.find(
+    (movie) => movie.imdbID === selectedId
+  )?.userRating;
 
   const {
     Title: title,
@@ -16,7 +27,7 @@ export function MovieDetails({ selectedId, onCloseMovie }) {
     imdbRating,
     Plot: plot,
     Released: released,
-    Actrors: actors,
+    Actors: actors,
     Director: director,
     Genre: genre,
   } = movie;
@@ -26,7 +37,7 @@ export function MovieDetails({ selectedId, onCloseMovie }) {
       async function getMovieDetails() {
         setIsLoading(true);
         const res = await fetch(
-          `http://omdbapi.com/?apikey=${KEY}&i=${selectedId}`,
+          `http://omdbapi.com/?apikey=${KEY}&i=${selectedId}`
         );
 
         const data = await res.json();
@@ -35,8 +46,23 @@ export function MovieDetails({ selectedId, onCloseMovie }) {
       }
       getMovieDetails();
     },
-    [selectedId],
+    [selectedId]
   );
+
+  function handleAdd() {
+    const newWatchedMovie = {
+      imdbID: selectedId,
+      title,
+      year,
+      poster,
+      imdbRating: Number(imdbRating),
+      runtime: Number(runtime.split(" ").at(0)),
+      userRating,
+    };
+
+    onAddWatched(newWatchedMovie);
+    onCloseMovie();
+  }
 
   return (
     <div className="details">
@@ -63,7 +89,22 @@ export function MovieDetails({ selectedId, onCloseMovie }) {
           </header>
           <section>
             <div className="rating">
-              <StarRating maxRating={10} size={24} />
+              {!isWatched ? (
+                <>
+                  <StarRating
+                    maxRating={10}
+                    size={24}
+                    onSetRating={setUserRating}
+                  />
+                  {userRating > 0 && (
+                    <button className="btn-add" onClick={handleAdd}>
+                      Add to Wachlist
+                    </button>
+                  )}
+                </>
+              ) : (
+                <p>You rated this movie {watchedUserRating} ★</p>
+              )}
             </div>
             <p>
               <em>{plot}</em>
