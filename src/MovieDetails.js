@@ -16,7 +16,7 @@ export function MovieDetails({
 
   const isWatched = watched.some((movie) => movie.imdbID === selectedId);
   const watchedUserRating = watched.find(
-    (movie) => movie.imdbID === selectedId
+    (movie) => movie.imdbID === selectedId,
   )?.userRating;
 
   const {
@@ -37,7 +37,7 @@ export function MovieDetails({
       async function getMovieDetails() {
         setIsLoading(true);
         const res = await fetch(
-          `http://omdbapi.com/?apikey=${KEY}&i=${selectedId}`
+          `http://omdbapi.com/?apikey=${KEY}&i=${selectedId}`,
         );
 
         const data = await res.json();
@@ -46,7 +46,35 @@ export function MovieDetails({
       }
       getMovieDetails();
     },
-    [selectedId]
+    [selectedId],
+  );
+
+  useEffect(
+    function () {
+      function callback(e) {
+        if (e.code === "Escape") {
+          onCloseMovie();
+        }
+      }
+
+      document.addEventListener("keydown", callback);
+      return function () {
+        document.removeEventListener("keydown", callback);
+      };
+    },
+    [onCloseMovie],
+  );
+
+  useEffect(
+    function () {
+      if (!title) return;
+      document.title = `Movie | ${title}`;
+
+      return function () {
+        document.title = "usePopcorn";
+      };
+    },
+    [title],
   );
 
   function handleAdd() {
