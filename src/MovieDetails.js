@@ -89,7 +89,7 @@ export function MovieDetails({
     };
 
     onAddWatched(newWatchedMovie);
-    onCloseMovie();
+    // onCloseMovie();
   }
 
   return (
